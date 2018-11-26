@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://at.alicdn.com/t/font_933064_7zqaqcu6fr.css">
+    <script src="https://cdn.bootcss.com/jquery/2.1.1/jquery.min.js"></script>
+    <style>
+        body,ul{
+            margin:0;
+            padding:0;
+        }
+        ul,li{
+            list-style:none;
+        }
+        a{
+            text-decoration: none;
+        }
+        .clearfix:after{
+            content:'';
+            display:block;
+            clear:both;
+        }
+        .carousel{
+            position: relative;
+            width:320px;
+            height:180px;
+            margin:50px auto;
+            overflow: hidden;
+        }
+        .imgBox{
+            position: absolute;
+        }
+        .imgBox li{
+            float:left;
+        }
+        .imgBox img{
+            width:320px;
+            height:180px;
+        }
+
+
+        .arrow {
+            position: absolute;
+            top:50%;
+            margin-top:-15px;
+            width:30px;
+            height:30px;
+            line-height: 30px;
+            border:1px solid;
+            color:rgba(255,255,255,.5);
+            border-radius:50%;
+            display: inline-block;
+            text-align: center;
+        }
+        .arrow .iconfont{
+            
+            font-size: 20px;
+        }
+        .arrow.left{
+            left:10px;
+        }
+        .arrow.right{
+            right:10px;
+        }
+        .carousel:hover .arrow {
+            color:rgba(255,255,255,1);
+        }
+
+
+        .btnBox{
+            position: absolute;
+            left:50%;
+            transform: translate(-50%);
+            bottom:10px;
+            height:8px;
+        }
+        .btnBox li{
+            width:30px;
+            height:8px;
+            border:1px solid #fff;
+            border-radius:4px;
+            float:left;
+            margin-left:6px;
+            cursor: pointer;
+        }
+        li.active {
+            background:rgba(255,255,255,.9);
+        }
+    
+    </style>
+</head>
+<body>
+    <div class="carousel">
+        <ul class="imgBox clearfix">
+            <li><a href="#"><img src="https://goss2.veer.com/creative/vcg/veer/612/veer-145511750.jpg" alt=""></a></li>
+            <li><a href="#"><img src="https://goss3.veer.com/creative/vcg/veer/612/veer-133052889.jpg" alt=""></a></li>
+            <li><a href="#"><img src="https://goss1.veer.com/creative/vcg/veer/612/veer-146942103.jpg" alt=""></a></li>
+            <li><a href="#"><img src="https://goss4.veer.com/creative/vcg/veer/612/veer-150270653.jpg" alt=""></a></li>
+        </ul>
+        <a href="#" class="arrow left"><span class="iconfont icon-left"></span></a>
+        <a href="#" class="arrow right"><span class="iconfont icon-right"></span></a>
+        <ul class="btnBox clearfix">
+            <li class="active"></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ul>
+    </div>
+
+
+    <div class="carousel">
+        <ul class="imgBox clearfix">
+            <li><a href="#"><img src="https://goss2.veer.com/creative/vcg/veer/612/veer-145511750.jpg" alt=""></a></li>
+            <li><a href="#"><img src="https://goss3.veer.com/creative/vcg/veer/612/veer-133052889.jpg" alt=""></a></li>
+            <li><a href="#"><img src="https://goss1.veer.com/creative/vcg/veer/612/veer-146942103.jpg" alt=""></a></li>
+            <li><a href="#"><img src="https://goss4.veer.com/creative/vcg/veer/612/veer-150270653.jpg" alt=""></a></li>
+        </ul>
+        <a href="#" class="arrow left"><span class="iconfont icon-left"></span></a>
+        <a href="#" class="arrow right"><span class="iconfont icon-right"></span></a>
+        <ul class="btnBox clearfix">
+            <li class="active"></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ul>
+    </div>
+
+
+    <script>
+        // 用组件的方式去写，因为页面可能有多个这样的轮播；如果页面出现重复用的东西，可以用组件的方式，对每个东西生成一个对象
+        // （模块可以认为，当前的页面也有这一个)
+        function Carousel($ct){
+            this.init($ct);
+            this.bind();
+            this.autoPlay();
+        }
+        Carousel.prototype = {
+            init:function($ct){
+                this.$ct = $ct;
+                this.$imgBox = this.$ct.find('.imgBox');
+                this.$imgs =   this.$ct.find('.imgBox li');
+                this.$leftArrow= this.$ct.find('.arrow.left');
+                this.$rightArrow =  this.$ct.find('.arrow.right');
+                this.$btns =  this.$ct.find('.btnBox li');
+
+                this.$imgWidth = this.$imgs.width();
+                this.$imgCount = this.$imgs.length;
+                this.index = 0;
+                this.isAnimate = false;
+                
+
+                // 把第一个图片克隆一份放到ul最后的位置，把最后一个图片克隆一份，放到ul第一个位置
+                // 然后根据图片的数量，设置ul的宽度
+                this.$imgBox.append(this.$imgs.first().clone());
+                this.$imgBox.prepend(this.$imgs.last().clone());
+                this.$imgBox.width((this.$imgCount+2)* this.$imgWidth);
+
+                // 初始化的时候，就让ul的left,往左偏移一个图片的宽度，这样一开始就会显示第一张图片
+                this.$imgBox.css('left',-this.$imgWidth);
+            },
+            bind:function(){
+                var _this = this;
+                this.$leftArrow.on('click',function(){
+                    console.log('left arrow');
+                        _this.moveRight(1); 
+                }),
+                this.$rightArrow.on('click',function(){
+                    console.log('right arrow');
+                    _this.moveLeft(1);
+                   
+                }),
+                this.$btns.on('click',function(){
+                    console.log($(this).index());
+                    console.log(_this.index);
+                    
+                    var clickIndex = $(this).index();
+                    if(clickIndex < _this.index){
+                        _this.moveRight(_this.index-clickIndex);
+                    }else{
+                        _this.moveLeft(clickIndex-_this.index);
+                    }
+                }),
+                this.$imgBox.on('mouseover',function(){
+                    _this.stopAuto();
+                }) ,
+                this.$imgBox.on('mouseout',function(){
+                    _this.autoPlay();
+                })
+            },
+            moveRight:function(len){
+                if(this.isAnimate) return;
+                var _this = this;
+                this.isAnimate = true;
+                _this.$imgBox.animate({
+                    left:'+='+_this.$imgWidth*len
+                },function(){
+                    _this.index -= len;
+                    if(_this.index<0){
+                        _this.$imgBox.css('left', -_this.$imgWidth * _this.$imgCount);
+                        _this.index = _this.$imgCount-1;
+                    }
+                    _this.setBtn();
+                    _this.isAnimate = false;
+                })
+            },
+            moveLeft:function(len){
+                if (this.isAnimate) return;
+                var _this = this;
+                this.isAnimate = true;
+                this.$imgBox.animate({
+                    left: '-=' + this.$imgWidth*len
+                },function(){
+                    _this.index += len;
+                    if(_this.index ===_this.$imgCount){
+                        _this.$imgBox.css('left', -_this.$imgWidth);
+                        _this.index = 0;
+                    }
+                     _this.setBtn();
+                     _this.isAnimate = false;
+                })
+            },
+            setBtn:function(){
+                var _this = this;
+                this.$btns.eq(this.index).addClass('active').siblings().removeClass('active');
+            },
+            autoPlay:function(){
+                var _this = this;
+                this.autoClock = setInterval(function(){
+                    _this.moveLeft(1);
+                },1300);
+            },
+            stopAuto:function(){
+                clearInterval(this.autoClock);
+            }
+        }
+
+        // var a = new Carousel($('.carousel').eq(0));
+        // var b = new Carousel($('.carousel').eq(1));
+
+        $.fn.carousel = function(){
+
+            $.each(this,function(index,node){
+                console.log(this);
+                new Carousel($(node));
+            })
+        }
+        $('.carousel').carousel();
+        
+        
+    
+    
+    
+    </script>
+</body>
+</html>
